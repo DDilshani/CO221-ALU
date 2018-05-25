@@ -1,16 +1,8 @@
-module ALU;
-    initial begin
-        $display ("Welcome to JDoodle!!!");
-      
-    end
-endmodule
-
-
 module andAB(R, A, B);
-
     input [3:0] A, B;
     output [3:0] R;
     
+    and (R0], A[0], B[0]);
     // S = A & B
     
 endmodule
@@ -22,6 +14,7 @@ module orAB(R, A, B);
     input [3:0] A, B;
     output [3:0] R;
     
+    or (R[0], A[0], B[0]);
     // S = A | B
     
 endmodule
@@ -37,29 +30,68 @@ module forToOneMux(Y, P,Q,R,S, Cont);
     input [1:0] Cont;       // Control inputs (2bit)
     output Y;               // one bit output
     
+    
+
 
 endmodule
 
 //---- Control Unit ------------------------------------------------------------------
 
 module moduleEnA(enA, L,M,N);
+	input L, M, N;
+	output enA;
+	wire notL, notM, notN, out1;
+	
 	// enA = (L'.M'.N)'
-
+	not b1 (notL, L);
+	not b2 (notM, M);
+	
+	and b4 (out1, notL, notM, N);
+	not b5 (enA, out1)
+	
 endmodule 
 
 module moduleEnB(enB, L,M,N);
+	input L, M, N;
+	output enB;
+	wire notL, notM, notN;
+	
 	// enB = (L'.M'.N')'
+	not c1 (notL, L);
+	not c2 (notM, M);
+	not c3 (notn, N);
+	
+	and c4 (out2, notL, notM, notN);
+	not c5 (enB, out2);
 
 endmodule 
 
 module moduleABar(enA, L,M,N);
+	input L, M, N;
+	output enA;
+	wire notL, notM, notN;
+	
 	// ABar = (L'.M'.N')
-
+	not c1 (notL, L);
+	not c2 (notM, M);
+	not c3 (notn, N);
+	
+	and c4 (enA, notL, notM, notN);
+	
 endmodule 
 
 module moduleBBar(enB, L,M,N);
 	// BBar = (L'.N')
-
+	
+	input L, N;
+	output enB;
+	wire notL, notN;
+	
+	not c1 (notL, L);
+	not c3 (notn, N);
+	
+	and c4 (enB, notL, notN);
+	
 endmodule 
 
 module moduleCin(cIn, L,M,N);
@@ -152,4 +184,3 @@ endmodule
 /* 
 This section must be think and write 
 */
-
