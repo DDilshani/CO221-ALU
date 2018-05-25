@@ -1,7 +1,7 @@
 module ALU;
     initial begin
         $display ("Welcome to JDoodle!!!");
-        //  EEddiitteedd 
+      
     end
 endmodule
 
