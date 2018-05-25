@@ -16,9 +16,25 @@ module orAB(R, A, B);
     
 endmodule
 
+<<<<<<< HEAD
 module selectOutput(Out, P,Q, AplusB, AandB)
+=======
+module forToOneMux(Y, P,Q,R,S, Cont);
+    
+    //  P = -A
+    //  Q = -B
+    //  R = A+B
+    //  S = A-B
+    
+    input P,Q,R,S;          // Data inputs (4 inputs)
+    input [1:0] Cont;       // Control inputs (2bit)
+    output Y;               // one bit output
+    
+    
+
 
 endmodule
+>>>>>>> c0495e68ba75ca615cc4212439c8458c4b9abb7f
 
 //---- Control Unit ------------------------------------------------------------------
 
