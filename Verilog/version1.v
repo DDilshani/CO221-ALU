@@ -3,16 +3,28 @@ module ALU;
 
 	reg [3:0] A,B;
 	reg [2:0] C;
-	output Out;
+	output [3:0] Output;
 	
+	ALU myALU(Output, A,B, C);
+	
+	initial begin
+		A <= 4'b1100;
+		B <= 4'b0001;
+		C <= 3'b000; // -A
+		
+		//$dumpfile("alu.vcd"); 
+		//$dumpvars(0, myALU);
+	end
+endmodule
+
+module ALU(S, A, B, control);
+
 	// 4bit wires
-	wire [3:0] AandB, AorB, inA, inB, afterEnA, afterEnB;
+	wire [3:0] inA, inB, afterEnA, afterEnB;
+	wire [3:0] AandB, AorB, AplusB, AxB;
 	
 	// 1bit wires
 	wire EnA, EnB, ABar, BBar, P, Q, R;
-	
-	andAB  myAndAB(AandB, A,B);
-	orAB myOrAB(AorB, A,B);
 	
 	moduleEnA myEnA(EnA, C[2], C[1], C[0]);
 	moduleEnB myEnB(EnB, C[2], C[1], C[0]);
@@ -21,14 +33,29 @@ module ALU;
 	
 	modulePQRfromLMN myController(P,Q,R, L,M,N);
 	
-	initial begin
-		A <= 4'b1100;
-		B <= 4'b0001;
-		C <= 3'b000; // -A
-		
-		//$dumpfile("alu.vcd"); 
-		//$dumpvars(0, myFullAdder);
-	end
+	// AND Module - take bus input if En=1
+	busAND myAND1(afterEnA, A, EnA);
+	busAND myAND2(afterEnB, B, EnB);
+	
+	// XOR Module - invert bus input if En=1
+	busXOR myXOR1(inA, afterEnA, ABar);
+	busXOR myXOR2(inB, afterEnB, BBar);
+	
+	// -A, -B, A+B, A-B handle from this 4bit Full Adder
+	fourBitFullAdder myFullAdder(AplusB, inA, inB)
+	
+	// Bitwise AND operation
+	andAB  myAndAB(AandB, A,B);
+	
+	// Bitwise OR Operation
+	orAB myOrAB(AorB, A,B);
+	
+	// A*B Operation
+	// AmultiplyB myAxB(AxB, A,B);
+	
+	// Bonus Operation
+	
+
 endmodule
 
 module andAB(R, A, B);
