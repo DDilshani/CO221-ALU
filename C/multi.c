@@ -13,16 +13,16 @@ void printBinary(int b, int l){
 
 int main(){
 
-	printf(" %c  ", 'x');
+	printf("  %c  ", 'x');
 	for(int j=0;j<16;j++){
 		printf(" ");
 		printBinary(j, 4);
 		printf("  ");
 	}
-	printf("\n----------------------------------------------------------\n");
+	printf("\n--------------------------------------------------------------------------------------------------------\n");
 	
 	for(int i=0;i<16;i++){
-		printf(" %d  ", i);
+		printf(" %2d  ", i);
 		
 		for(int j=0;j<16;j++){
 			printf(" ");
