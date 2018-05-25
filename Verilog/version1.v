@@ -1,9 +1,44 @@
+
+module ALU;
+
+	reg [3:0]A, [3:0]B;
+	reg [2:0]C;
+	output Out;
+	
+	// 4bit wires
+	wire [3:0] AandB, AorB, inA inB, afterEnA, afterEnB;
+	
+	// 1bit wires
+	wire EnA, EnB, ABar, BBar, P, Q, R;
+	
+	andAB (AandB, A,B);
+	orAB (AorB, A,B);
+	
+	moduleEnA(EnA, C[2], C[1], C[0]);
+	moduleEnB(EnB, C[2], C[1], C[0]);
+	moduleABar(ABar, C[2], C[1], C[0]);
+	moduleBBar(BBar, C[2], C[1], C[0]);
+	
+	modulePQRfromLMN (P,Q,R, L,M,N)
+	initial begin
+		A <= 4'b1100;
+		B <= 4'b0001;
+		Ctrl <= 3'b000; // -A
+		
+		$dumpfile("alu.vcd"); 
+		$dumpvars(0, myFullAdder);
+	end
+endmodule
+
 module andAB(R, A, B);
     input [3:0] A, B;
     output [3:0] R;
     
-    and (R0], A[0], B[0]);
-    // S = A & B
+	// S = A & B
+    and (R[0], A[0], B[0]);
+    and (R[1], A[1], B[1]);
+    and (R[2], A[2], B[2]);
+    and (R[3], A[3], B[0]);
     
 endmodule
 
@@ -12,7 +47,9 @@ module orAB(R, A, B);
     output [3:0] R;
     
     or (R[0], A[0], B[0]);
-    // S = A | B
+    or (R[1], A[1], B[1]);
+    or (R[2], A[2], B[2]);
+    or (R[3], A[3], B[3]);
     
 endmodule
 
@@ -51,9 +88,9 @@ module moduleEnB(enB, L,M,N);
 
 endmodule 
 
-module moduleABar(enA, L,M,N);
+module moduleABar(ABar, L,M,N);
 	input L, M, N;
-	output enA;
+	output ABar;
 	wire notL, notM, notN;
 	
 	// ABar = (L'.M'.N')
@@ -61,21 +98,21 @@ module moduleABar(enA, L,M,N);
 	not c2 (notM, M);
 	not c3 (notn, N);
 	
-	and c4 (enA, notL, notM, notN);
+	and c4 (ABar, notL, notM, notN);
 	
 endmodule 
 
-module moduleBBar(enB, L,M,N);
+module moduleBBar(BBar, L,M,N);
 	// BBar = (L'.N')
 	
 	input L, N;
-	output enB;
+	output BBar;
 	wire notL, notN;
 	
 	not c1 (notL, L);
 	not c3 (notn, N);
 	
-	and c4 (enB, notL, notN);
+	and c4 (BBar, notL, notN);
 	
 endmodule 
 
