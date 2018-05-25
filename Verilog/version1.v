@@ -15,8 +15,6 @@ module andAB(R, A, B);
     
 endmodule
 
-
-
 module orAB(R, A, B);
 
     input [3:0] A, B;
@@ -26,19 +24,7 @@ module orAB(R, A, B);
     
 endmodule
 
-module forToOneMux(Y, P,Q,R,S, Cont);
-    
-    //  P = -A
-    //  Q = -B
-    //  R = A+B
-    //  S = A-B
-    
-    input P,Q,R,S;          // Data inputs (4 inputs)
-    input [1:0] Cont;       // Control inputs (2bit)
-    output Y;               // one bit output
-    
-
-endmodule
+module selectOutput(Out, P,Q, AplusB, AandB)
 
 //---- Control Unit ------------------------------------------------------------------
 
@@ -106,13 +92,22 @@ endmodule
 module oneBitFullAdder(S,cOut, A,B,cIn);
 	input A, B, cIn;
 	output S, cOut;
+	wire masterCOut, masterS, slaveCOut;
 	
+	oneBitHalfAdder masterFA(masterS,masterCOut,  A, B);
+	oneBitHalfAdder masterFA(S,slaveCOut,  A, B);
 endmodule
 
-module oneBitHalfAdder(S,cOut, A,B,cIn);
+module oneBitHalfAdder(S,cOut, A,B,cOut);
 	input A, B, cIn;
 	output S, cOut;
 	
+	// cOut = A+B
+	// S = A (+) B
+	
+	and u1(cOut, A,B);
+	xor u2(S, A,B);
+
 endmodule
 
 

@@ -11,16 +11,22 @@ module testbench;
 		A <= 4'b1100;
 		B <= 4'b0001;
 
-		//$dumpfile("adder.vcd"); 
-		//$dumpvars(0, myFullAdder);
+		$dumpfile("adder.vcd"); 
+		$dumpvars(0, myFullAdder);
      	
-		#10 $display("a=%b b=%b, s=%b\n", A, B, S);
-	
+		#2 A <= 4'b0001;
+		#2 A <= 4'b0010;
+		#2 A <= 4'b0011;
+		#2 A <= 4'b0011;
+		#2 A <= 4'b0100;
+		#2 A <= 4'b0101;
+		#2 A <= 4'b0110;
+		#2 A <= 4'b0111;
+		#2 A <= 4'b1000;
+		
 		#10 $finish;
 	end
 
-always #5 A = A+ 1b'1;	
-	
 endmodule
 
 module bitFullAdder(A,B,S,cIn,cOut);
@@ -44,33 +50,26 @@ endmodule
 
 module fullAdder(A, B, cIn, cOut, S);
 
-	/*
-
-
-
-input A,B, cIn;
+	input A,B, cIn;
 	output cOut, S;
 	wire x,y,z, p;
 
-	halfAdder add11(A,B, x, y);
-	halfAdder add12(y, cIn, z, S);
-	or u1(cOut, x, z);*/
-
-
-	input A,B,cIn; output S,cOut;
+	halfAdder add1(A,B, x, y);
+	halfAdder add2(y, cIn, z, S);
+	or u1(cOut, x, z);
+	
+	/*input A,B,cIn; output S,cOut;
 	assign {cOut,S} = A + B + cIn;
-
+	*/
 endmodule
 
-/*
 module halfAdder(A, B, cOut, S);
 	// Get A,B bits and results A+B
 
 	input A,B;
 	output cOut, S;
 
-	and u1(S, A,B);
-	xor u2(cOut, A,B);
+	and u1(cOut, A,B);
+	xor u2(S, A,B);
 
 endmodule
-*/
