@@ -10,7 +10,6 @@ endmodule
 
 
 module orAB(R, A, B);
-
     input [3:0] A, B;
     output [3:0] R;
     
@@ -118,12 +117,12 @@ module modulePQRfromLMN(P,Q,R, L,M,N);
 	// Q = L.N'
 	// R = L.M.N
 	
-	xor f1(xorMN, M,N);
-	not f2(notN, N);
+	xor d1(xorMN, M,N);
+	not d2(notN, N);
 	
-	and f3(P, L,xorMN);
-	and f4(Q, L, notN);
-	and f5(R, L,M,N);
+	and d3(P, L,xorMN);
+	and d4(Q, L, notN);
+	and d5(R, L,M,N);
 
 endmodule
 
