@@ -14,7 +14,9 @@ module testbench;
 		
 		$dumpfile("alu.vcd"); 
 		$dumpvars(0, myALU);
-		
+		/*
+
+*/
 
 		for(i=0; i<15; i=i+1) begin
 			B <= i;
