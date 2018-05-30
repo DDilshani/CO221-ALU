@@ -88,6 +88,7 @@ module bitwiseAndAB(R, A, B);
     
 endmodule
 
+
 module bitwiseOrAB(R, A, B);
 
     input [3:0] A, B;
@@ -341,7 +342,4 @@ module busXOR(Y, X, En);
 	
 endmodule
 
-
-//---- 4bit multiply  ------------------------------------------------------------------
- 
 
