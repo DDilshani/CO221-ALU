@@ -1,40 +1,38 @@
 
 module testbench;
 
-	reg [3:0] A,B;
-	reg [2:0] C;
-	output [3:0] out;
-	reg [4:0] i;
+	reg [3:0] A,B;		// Input Registers
+	reg [2:0] C;		// Control Signal
+	reg [4:0] i; 		// Debugging only
+	output [3:0] out;	// Output Register
+
 	ALU myALU(out, A,B, C[2], C[1], C[0]);
 	
 	initial begin
-		A <= 4'b1100;
-		B <= 4'b0001;
-		C <= 3'b110; //
+		A <= 4'b0000;
+		B <= 4'b0000;
+		C <= 3'b111; // Control input signal
 		
 		$dumpfile("alu.vcd"); 
 		$dumpvars(0, myALU);
 		
-
 		for(i=0; i<15; i=i+1) begin
 			B <= i;
  			A <= i/2;
-			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d   |   A=%b, B=%b, Out=%b\n", C,C, A,B,out, A,B,out);
+			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d  |   A=%b, B=%b, Out=%b\n", C,C, A,B,out, A,B,out);
 	  	end
-		
-		//#10 $display("A=%b B=%b ===( %b )===> Output=%b \n", A, B, C, out);
 	end
+
 endmodule
 
 module ALU(S, A, B, L,M,N);
-
-    input [3:0] A,B;     // Input Registers
-    input L, M, N;     // Control Input
-    output [3:0] S;      // Output Register
+   input [3:0] A,B;     // Input Registers
+   input L, M, N;     // Control Input
+   output [3:0] S;      // Output Register
     
 	// 4bit wires
 	wire [3:0] inA, inB, afterEnA, afterEnB;
-	wire [3:0] AandB, AorB, AplusB, AxB;
+	wire [3:0] AandB, AorB, AplusB, AxB, AxorB;
 	
 	// 1bit wires
 	wire EnA, EnB, ABar, BBar, P, Q, R, cIn,  cOut;
@@ -43,7 +41,6 @@ module ALU(S, A, B, L,M,N);
 	moduleEnB myEnB(EnB, L, M, N);
 	moduleABar myABar(ABar, L, M, N);
 	moduleBBar myBBar(BBar, L, M, N);
-	
 	moduleCin myCin(cIn, L, M, N);
 	
 	// AND Module - take bus input if En=1
@@ -66,31 +63,28 @@ module ALU(S, A, B, L,M,N);
 	// A*B Operation
 	AmultiplyB myAxB(AxB, A,B);
 	
-	// Bonus Operation
-	bitwiseXOR(AxorB, A, B);
+	// Bonus Operation - A xor B
+	bitwiseXOR myAxorB(AxorB, A, B);
 	
 	// Final output switching modules
 	modulePQRfromLMN myController(P,Q,R, L,M,N);
-	outputSelector myOutput(S, P,Q,R, AplusB, AandB, AorB, AxB, AxB);
+	outputSelector myOutput(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 
 endmodule
 
 module bitwiseAndAB(R, A, B);
-
     input [3:0] A, B;
     output [3:0] R;
     
 	// S = A & B
-    and (R[0], A[0], B[0]);
-    and (R[1], A[1], B[1]);
-    and (R[2], A[2], B[2]);
-    and (R[3], A[3], B[3]);
+    and myAND0(R[0], A[0], B[0]);
+    and myAND1(R[1], A[1], B[1]);
+    and myAND2(R[2], A[2], B[2]);
+    and myAND3(R[3], A[3], B[3]);
     
 endmodule
 
-
 module bitwiseOrAB(R, A, B);
-
     input [3:0] A, B;
     output [3:0] R;
     
@@ -102,54 +96,73 @@ module bitwiseOrAB(R, A, B);
 endmodule
 
 module AmultiplyB(R, A,B);
-
 	input [3:0] A,B;
-	output [3:0] R;
+	output [3:0] R, R2;
 
-	wire [3:0] X1,X2, X3, Y1, Y2, Y3, S1, S2, S3;
-	wire p0, p1, p2, p3, p4, p5, p6, p7;
+	wire [3:0] X0, X1, X2, X3, Y1, Y2, Y3, S1, S2, S3;
+	wire p0, p1, p2, p3, p4, p5, p6, p7, cOut1, cOut2, cOut3;
 	
-	busAND myAND1(X1,A , B[0]);
-	busAND myAND2(Y1, A, B[1]);
-	busAND myAND2(Y2, A, B[2]);
-	busAND myAND3(Y3, A, B[3]);
+	// Level 1
+	busAND myA0(X0, A , B[0]);
+	busAND myA1(Y1, A, B[1]);
+	fourBitFullAdder fA0(S1,cOut1, X1,Y1,1'b0);
+
+	assign p0 = X0[0];
+	assign X1[0] = X0[1];
+	assign X1[1] = X0[2];
+	assign X1[2] = X0[3];
+	assign X1[3] = 1'b0;
+
+	// Level 2
+	busAND myA2(Y2, A, B[2]);
+	fourBitFullAdder fA1(S2,cOut2, X2,Y2,1'b0);
+
+	assign p1 = S1[0];
+	assign X2[0] = S1[1];
+	assign X2[1] = S1[2];
+	assign X2[2] = S1[3];
+	assign X2[3] = cOut1;
+
+	// Level 3
+	busAND myA3(Y3, A, B[3]);
+	fourBitFullAdder fA2(S3,cOut3, X3,Y3,1'b0);
 	
-	fourBitFullAdder fA1(S1,X2[3], X1,Y1,1'b0);
-	fourBitFullAdder fA1(S2,X3[3], X2,Y2,1'b0);
-	fourBitFullAdder fA1(S3,p7, X3,Y3,1'b0);
-	
-	// Stage 1
-	assign p0 <= X1[0];
-	assign p1 <= S1[0];
-	assign X2[0] <= S1[1];
-	assign X2[1] <= S1[2];
-	assign X2[2] <= S1[3];
-	
-	// Stage 2
-	assign p2 <= S2[0];
-	assign X3[0] <= S2[1];
-	assign X3[1] <= S2[2];
-	assign X3[2] <= S2[3];
-	
-	// Stage 3
-	assign p3 <= S3[0];
-	assign p4 <= S3[1];
-	assign p5 <= S3[2];
-	assign p6 <= S3[3];
-	
+	assign p2 = S2[0];
+	assign X3[0] = S2[1];
+	assign X3[1] = S2[2];
+	assign X3[2] = S2[3];
+	assign X3[3] = cOut2;
+
+	// Level 4
+	assign p3 = S3[0];
+	assign p4 = S3[1];
+	assign p5 = S3[2];
+	assign p6 = S3[3];
+	assign p7 = cOut3;
+
+	// Final output
+	assign R[0] = p0;
+	assign R[1] = p1;
+	assign R[2] = p2;
+	assign R[3] = p3;
+
+	// Overflowed output
+	assign R2[0] = p4;
+	assign R2[1] = p5;
+	assign R2[2] = p6;
+	assign R2[3] = p7;
 	endmodule
 
 module bitwiseXOR(AxorB, A, B);
-	//bitwiseXOR myXOR(AxorB, A,B);
-
 	input [3:0] A, B;
 	output [3:0] AxorB;
     
-	//AXORB  = A XOR B
+	//AxorB  = A XOR B
 	xor (AxorB[0], A[0], B[0]);
 	xor (AxorB[1], A[1], B[1]);
 	xor (AxorB[2], A[2], B[2]);
 	xor (AxorB[3], A[3], B[3]);
+
 endmodule
 
 
@@ -208,6 +221,7 @@ module moduleBBar(BBar, L,M,N);
 	not c3 (notN, N);
 	and c4 (out2, notL, notN);
 	not c5 (BBar, out2);
+
 endmodule 
 
 module moduleCin(cIn, L,M,N);
@@ -224,7 +238,6 @@ module moduleCin(cIn, L,M,N);
 endmodule 
 
 module modulePQRfromLMN(P,Q,R, L,M,N);
-	
 	input L,M, N;
 	output P, Q, R;
 	wire xorMN, notN; 
@@ -242,27 +255,27 @@ module modulePQRfromLMN(P,Q,R, L,M,N);
 
 endmodule
 
-module outputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AmodB);
+module outputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	// 4bit output selector
-	input [3:0] AplusB, AandB, AorB, AxB, AmodB;
+	input [3:0] AplusB, AandB, AorB, AxB, AxorB;
 	input P,Q,R;
 	output [3:0] S;
 
-	oneBitOutputSelector f1(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AmodB[0]);
-	oneBitOutputSelector f2(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AmodB[1]);
-	oneBitOutputSelector f3(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AmodB[2]);
-	oneBitOutputSelector f4(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AmodB[3]);
+	oneBitOutputSelector f1(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AxorB[0]);
+	oneBitOutputSelector f2(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AxorB[1]);
+	oneBitOutputSelector f3(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AxorB[2]);
+	oneBitOutputSelector f4(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AxorB[3]);
 	
 endmodule
 
-module oneBitOutputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AmodB);
+module oneBitOutputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	// 1bit output selector
-	input AplusB, AandB, AorB, AxB, AmodB;
+	input AplusB, AandB, AorB, AxB, AxorB;
 	input P,Q,R;
 	output S;
 	
 	wire pBar, qBar, rBar;
-	wire AplusB_out, AandB_out, AorB_out, AxB_out, AmodB_out;
+	wire AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out;
 	
 	not f1(pBar, P);
 	not f2(qBar, Q);
@@ -272,9 +285,9 @@ module oneBitOutputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AmodB);
 	and f5(AandB_out, AandB, pBar, Q, rBar);
 	and f6(AorB_out, AorB, P, qBar, rBar);
 	and f7(AxB_out, AxB, P, Q, rBar);
-	and f8(AmodB_out, R);
+	and f8(AxorB_out, AxorB, R);
 	
-	or f9(S, AplusB_out, AandB_out, AorB_out, AxB_out, AmodB_out);
+	or f9(S, AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out);
 	
 endmodule
 
@@ -282,11 +295,9 @@ endmodule
 
 module fourBitFullAdder(AplusB,cOut, inA,inB,cIn);
 	input [3:0] inA, inB;
-	output [3:0] AplusB;
-	
-	input cIn;
+	input cIn;	
+	output [3:0] AplusB;	
 	output cOut;
-
 	wire w1, w2, w3;
  
 	fullAdder add1(inA[0], inB[0], cIn, w1, AplusB[0]);
@@ -297,7 +308,6 @@ endmodule
 
 
 module fullAdder(A, B, cIn, cOut, S);
-
 	input A,B, cIn;
 	output cOut, S;
 	wire x,y,z, p;
@@ -306,33 +316,26 @@ module fullAdder(A, B, cIn, cOut, S);
 	halfAdder add2(y, cIn, z, S);
 	or u1(cOut, x, z);
 	
-	/*input A,B,cIn; output S,cOut;
-	assign {cOut,S} = A + B + cIn;
-	*/
 endmodule
 
 module halfAdder(A, B, cOut, S);
-	// Get A,B bits and results A+B
-
 	input A,B;
 	output cOut, S;
 
+	// Get A,B bits and results A+B
 	and u1(cOut, A,B);
 	xor u2(S, A,B);
 
 endmodule
 
-
 //---- support Modules for 4bit fullAdder ----------------------------------------------
 
 module busAND(Y, X, En);
-    input [3:0] X;
-    input En;
-    output [3:0] Y;
+   input [3:0] X;
+   input En;
+   output [3:0] Y;
     
-    // if (EnA==1) ? Y=X : Y= 4'b0000
-	// Y[i] = X[i] and En
-	
+   // if (EnA==1) ? Y=X : Y= 4'b0000
 	and f1(Y[0], X[0], En);
 	and f1(Y[1], X[1], En);
 	and f1(Y[2], X[2], En);
@@ -341,13 +344,11 @@ module busAND(Y, X, En);
 endmodule
 
 module busXOR(Y, X, En);
+	input [3:0] X;
+   input En;
+   output [3:0] Y;
 
-	// if (EnA==1) ? Y=xor(Y, 1) : Y= Y
-	// Y[i] = X[i] (+) En
-    input [3:0] X;
-    input En;
-    output [3:0] Y;
-    
+	// if (EnA==1) ? Y=xor(Y, 1) : Y= Y    
 	xor f1(Y[0], X[0], En);
 	xor f1(Y[1], X[1], En);
 	xor f1(Y[2], X[2], En);
