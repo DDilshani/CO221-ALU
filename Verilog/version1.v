@@ -66,8 +66,21 @@ module ALU(S, A, B, L,M,N);
 	bitwiseOrAB myOrAB(AorB, A,B);
 	
 	// A*B Operation
-	AmultiplyB myAxB(AxB, A,B);
+	
+module bitwiseXOR(R, A, B);
+	//bitwiseXOR myXOR(AxorB, A,B);
 	// Bonus Operation
+
+	input [3:0] A, B;
+	output [3:0] AxorB;
+    
+	//AXORB  = A XOR B
+	xor (AxorB[0], A[0], B[0]);
+	xor (AxorB[1], A[1], B[1]);
+	xor (AxorB[2], A[2], B[2]);
+	xor (AxorB[3], A[3], B[3]);
+endmodule
+	
 	
 	// Final output switching modules
 	modulePQRfromLMN myController(P,Q,R, L,M,N);
@@ -80,11 +93,11 @@ module bitwiseAndAB(R, A, B);
     input [3:0] A, B;
     output [3:0] R;
     
-	// S = A & B
+	// R = A & B
     and (R[0], A[0], B[0]);
     and (R[1], A[1], B[1]);
     and (R[2], A[2], B[2]);
-    and (R[3], A[3], B[0]);
+    and (R[3], A[3], B[3]);
     
 endmodule
 
