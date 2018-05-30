@@ -67,6 +67,8 @@ module ALU(S, A, B, L,M,N);
 	AmultiplyB myAxB(AxB, A,B);
 	// Bonus Operation
 	
+	
+	
 	// Final output switching modules
 	modulePQRfromLMN myController(P,Q,R, L,M,N);
 	outputSelector myOutput(S, P,Q,R, AplusB, AandB, AorB, AxB, AxB);
@@ -82,7 +84,7 @@ module bitwiseAndAB(R, A, B);
     and (R[0], A[0], B[0]);
     and (R[1], A[1], B[1]);
     and (R[2], A[2], B[2]);
-    and (R[3], A[3], B[0]);
+    and (R[3], A[3], B[3]);
     
 endmodule
 
@@ -103,8 +105,38 @@ module AmultiplyB(R, A,B);
 	input [3:0] A,B;
 	output [3:0] R;
 
-
-endmodule
+	wire [3:0] X1,X2, X3, Y1, Y2, Y3, S1, S2, S3;
+	wire p0, p1, p2, p3, p4, p5, p6, p7;
+	
+	busAND myAND1(X1,A , B[0]);
+	busAND myAND2(Y1, A, B[1]);
+	busAND myAND2(Y2, A, B[2]);
+	busAND myAND3(Y3, A, B[3]);
+	
+	fourBitFullAdder fA1(S1,X2[3], X1,Y1,1'b0);
+	fourBitFullAdder fA1(S2,X3[3], X2,Y2,1'b0);
+	fourBitFullAdder fA1(S3,p7, X3,Y3,1'b0);
+	
+	// Stage 1
+	assign p0 <= X1[0];
+	assign p1 <= S1[0];
+	assign X2[0] <= S1[1];
+	assign X2[1] <= S1[2];
+	assign X2[2] <= S1[3];
+	
+	// Stage 2
+	assign p2 <= S2[0];
+	assign X3[0] <= S2[1];
+	assign X3[1] <= S2[2];
+	assign X3[2] <= S2[3];
+	
+	// Stage 3
+	assign p3 <= S3[0];
+	assign p4 <= S3[1];
+	assign p5 <= S3[2];
+	assign p6 <= S3[3];
+	
+	endmodule
 
 
 //---- Control Unit ------------------------------------------------------------------
@@ -311,7 +343,5 @@ endmodule
 
 
 //---- 4bit multiply  ------------------------------------------------------------------
+ 
 
-/* 
-This section must be think and write 
-*/
