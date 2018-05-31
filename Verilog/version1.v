@@ -1,4 +1,3 @@
-
 module testbench;
 
 	reg [3:0] A,B;		// Input Registers
@@ -16,11 +15,6 @@ module testbench;
 		$dumpfile("alu.vcd"); 
 		$dumpvars(0, myALU);
 		
-		for(i=0; i<15; i=i+1) begin
-			B <= i;
- 			A <= i/2;
-			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d  |   A=%b, B=%b, Out=%b\n", C,C, A,B,out, A,B,out);
-	  	end
 	end
 
 endmodule
@@ -261,10 +255,10 @@ module outputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	input P,Q,R;
 	output [3:0] S;
 
-	oneBitOutputSelector f1(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AxorB[0]);
-	oneBitOutputSelector f2(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AxorB[1]);
-	oneBitOutputSelector f3(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AxorB[2]);
-	oneBitOutputSelector f4(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AxorB[3]);
+	oneBitOutputSelector f11(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AxorB[0]);
+	oneBitOutputSelector f12(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AxorB[1]);
+	oneBitOutputSelector f13(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AxorB[2]);
+	oneBitOutputSelector f14(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AxorB[3]);
 	
 endmodule
 
@@ -277,17 +271,17 @@ module oneBitOutputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	wire pBar, qBar, rBar;
 	wire AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out;
 	
-	not f1(pBar, P);
-	not f2(qBar, Q);
-	not f3(rBar, R);
+	not f21(pBar, P);
+	not f22(qBar, Q);
+	not f23(rBar, R);
 	
-	and f4(AplusB_out, AplusB, pBar, qBar, rBar);
-	and f5(AandB_out, AandB, pBar, Q, rBar);
-	and f6(AorB_out, AorB, P, qBar, rBar);
-	and f7(AxB_out, AxB, P, Q, rBar);
-	and f8(AxorB_out, AxorB, R);
+	and f24(AplusB_out, AplusB, pBar, qBar, rBar);
+	and f25(AandB_out, AandB, pBar, Q, rBar);
+	and f26(AorB_out, AorB, P, qBar, rBar);
+	and f27(AxB_out, AxB, P, Q, rBar);
+	and f28(AxorB_out, AxorB, R);
 	
-	or f9(S, AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out);
+	or f29(S, AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out);
 	
 endmodule
 
@@ -336,10 +330,10 @@ module busAND(Y, X, En);
    output [3:0] Y;
     
    // if (EnA==1) ? Y=X : Y= 4'b0000
-	and f1(Y[0], X[0], En);
-	and f1(Y[1], X[1], En);
-	and f1(Y[2], X[2], En);
-	and f1(Y[3], X[3], En);
+	and f31(Y[0], X[0], En);
+	and f32(Y[1], X[1], En);
+	and f33(Y[2], X[2], En);
+	and f34(Y[3], X[3], En);
 	
 endmodule
 
@@ -349,11 +343,9 @@ module busXOR(Y, X, En);
    output [3:0] Y;
 
 	// if (EnA==1) ? Y=xor(Y, 1) : Y= Y    
-	xor f1(Y[0], X[0], En);
-	xor f1(Y[1], X[1], En);
-	xor f1(Y[2], X[2], En);
-	xor f1(Y[3], X[3], En);
+	xor f41(Y[0], X[0], En);
+	xor f42(Y[1], X[1], En);
+	xor f43(Y[2], X[2], En);
+	xor f44(Y[3], X[3], En);
 	
 endmodule
-
-
