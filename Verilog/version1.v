@@ -1,3 +1,19 @@
+
+/*************************************************************************
+
+	4-bit Combinational ALU design
+	
+	Group members
+		E/15/140 Jaliyagoda A.J.N.M.
+		E/15/173 Karunarathna S.D.D.D. 
+		E/15/179 Karunaratne S.M.A.K.
+
+	Last update : 01/06/2018
+	source code : https://github.com/DDilshani/CO221-ALU
+
+*************************************************************************/
+
+
 module testbench;
 
 	reg [3:0] A,B;		// Input Registers
@@ -8,13 +24,18 @@ module testbench;
 	ALU myALU(out, A,B, C[2], C[1], C[0]);
 	
 	initial begin
-		A <= 4'b0000;
-		B <= 4'b0000;
-		C <= 3'b111; // Control input signal
+		A <= 4'b0000; 	// Register A
+		B <= 4'b0000; 	// Register B
+		C <= 3'b000; 	// Control input signal
 		
 		$dumpfile("alu.vcd"); 
 		$dumpvars(0, myALU);
 		
+		for(i=0; i<15; i=i+1) begin
+			B <= i;
+ 			A <= i/2;
+			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d  |   A=%b, B=%b, Out=%b", C,C, A,B,out, A,B,out);
+	  	end
 	end
 
 endmodule
@@ -91,7 +112,7 @@ endmodule
 
 module AmultiplyB(R, A,B);
 	input [3:0] A,B;
-	output [3:0] R, R2;
+	output [3:0] R; // R2
 
 	wire [3:0] X0, X1, X2, X3, Y1, Y2, Y3, S1, S2, S3;
 	wire p0, p1, p2, p3, p4, p5, p6, p7, cOut1, cOut2, cOut3;
@@ -141,11 +162,12 @@ module AmultiplyB(R, A,B);
 	assign R[3] = p3;
 
 	// Overflowed output
-	assign R2[0] = p4;
+	/*assign R2[0] = p4;
 	assign R2[1] = p5;
 	assign R2[2] = p6;
-	assign R2[3] = p7;
-	endmodule
+	assign R2[3] = p7;*/
+
+endmodule
 
 module bitwiseXOR(AxorB, A, B);
 	input [3:0] A, B;
@@ -197,11 +219,11 @@ module moduleABar(ABar, L,M,N);
 	wire notL, notM, notN;
 	
 	// ABar = (L'.M'.N')
-	not c1 (notL, L);
-	not c2 (notM, M);
-	not c3 (notN, N);
+	not d1 (notL, L);
+	not d2 (notM, M);
+	not d3 (notN, N);
 	
-	and c4 (ABar, notL, notM, notN);
+	and d4 (ABar, notL, notM, notN);
 	
 endmodule 
 
@@ -211,10 +233,10 @@ module moduleBBar(BBar, L,M,N);
 	wire notL, notN, out2;
 	
 	// BBar = (L'.N')
-	not c1 (notL, L);
-	not c3 (notN, N);
-	and c4 (out2, notL, notN);
-	not c5 (BBar, out2);
+	not e1 (notL, L);
+	not e3 (notN, N);
+	and e4 (out2, notL, notN);
+	not e5 (BBar, out2);
 
 endmodule 
 
@@ -224,10 +246,10 @@ module moduleCin(cIn, L,M,N);
 	wire notL, notN, out2;
 	
 	// cIn = (L'.M.N')'
-	not f1(notL, L);
-	not f2(notN, N);
-	and f3(out2, notL, M, notN);
-	not f4(cIn, out2);
+	not f01(notL, L);
+	not f02(notN, N);
+	and f03(out2, notL, M, notN);
+	not f04(cIn, out2);
 	
 endmodule 
 
@@ -349,3 +371,4 @@ module busXOR(Y, X, En);
 	xor f44(Y[3], X[3], En);
 	
 endmodule
+
