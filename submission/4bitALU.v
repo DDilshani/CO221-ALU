@@ -1,4 +1,19 @@
 
+/*************************************************************************
+
+	4-bit Combinational ALU design
+	
+	Group members
+		E/15/140 Jaliyagoda A.J.N.M.
+		E/15/173 Karunarathna S.D.D.D. 
+		E/15/179 Karunaratne S.M.A.K.
+
+	Last update : 01/06/2018
+	source code : https://github.com/DDilshani/CO221-ALU
+
+*************************************************************************/
+
+
 module testbench;
 
 	reg [3:0] A,B;		// Input Registers
@@ -9,9 +24,9 @@ module testbench;
 	ALU myALU(out, A,B, C[2], C[1], C[0]);
 	
 	initial begin
-		A <= 4'b0000;
-		B <= 4'b0000;
-		C <= 3'b111; // Control input signal
+		A <= 4'b0000; 	// Register A
+		B <= 4'b0000; 	// Register B
+		C <= 3'b000; 	// Control input signal
 		
 		$dumpfile("alu.vcd"); 
 		$dumpvars(0, myALU);
@@ -19,7 +34,7 @@ module testbench;
 		for(i=0; i<15; i=i+1) begin
 			B <= i;
  			A <= i/2;
-			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d  |   A=%b, B=%b, Out=%b\n", C,C, A,B,out, A,B,out);
+			#10 $display("Signal=%d (%b)   |   A=%d, B=%d, Out=%d  |   A=%b, B=%b, Out=%b", C,C, A,B,out, A,B,out);
 	  	end
 	end
 
@@ -97,7 +112,7 @@ endmodule
 
 module AmultiplyB(R, A,B);
 	input [3:0] A,B;
-	output [3:0] R, R2;
+	output [3:0] R; // R2
 
 	wire [3:0] X0, X1, X2, X3, Y1, Y2, Y3, S1, S2, S3;
 	wire p0, p1, p2, p3, p4, p5, p6, p7, cOut1, cOut2, cOut3;
@@ -147,11 +162,12 @@ module AmultiplyB(R, A,B);
 	assign R[3] = p3;
 
 	// Overflowed output
-	assign R2[0] = p4;
+	/*assign R2[0] = p4;
 	assign R2[1] = p5;
 	assign R2[2] = p6;
-	assign R2[3] = p7;
-	endmodule
+	assign R2[3] = p7;*/
+
+endmodule
 
 module bitwiseXOR(AxorB, A, B);
 	input [3:0] A, B;
@@ -203,11 +219,11 @@ module moduleABar(ABar, L,M,N);
 	wire notL, notM, notN;
 	
 	// ABar = (L'.M'.N')
-	not c1 (notL, L);
-	not c2 (notM, M);
-	not c3 (notN, N);
+	not d1 (notL, L);
+	not d2 (notM, M);
+	not d3 (notN, N);
 	
-	and c4 (ABar, notL, notM, notN);
+	and d4 (ABar, notL, notM, notN);
 	
 endmodule 
 
@@ -217,10 +233,10 @@ module moduleBBar(BBar, L,M,N);
 	wire notL, notN, out2;
 	
 	// BBar = (L'.N')
-	not c1 (notL, L);
-	not c3 (notN, N);
-	and c4 (out2, notL, notN);
-	not c5 (BBar, out2);
+	not e1 (notL, L);
+	not e3 (notN, N);
+	and e4 (out2, notL, notN);
+	not e5 (BBar, out2);
 
 endmodule 
 
@@ -230,10 +246,10 @@ module moduleCin(cIn, L,M,N);
 	wire notL, notN, out2;
 	
 	// cIn = (L'.M.N')'
-	not f1(notL, L);
-	not f2(notN, N);
-	and f3(out2, notL, M, notN);
-	not f4(cIn, out2);
+	not f01(notL, L);
+	not f02(notN, N);
+	and f03(out2, notL, M, notN);
+	not f04(cIn, out2);
 	
 endmodule 
 
@@ -261,10 +277,10 @@ module outputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	input P,Q,R;
 	output [3:0] S;
 
-	oneBitOutputSelector f1(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AxorB[0]);
-	oneBitOutputSelector f2(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AxorB[1]);
-	oneBitOutputSelector f3(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AxorB[2]);
-	oneBitOutputSelector f4(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AxorB[3]);
+	oneBitOutputSelector f11(S[0], P,Q,R, AplusB[0], AandB[0], AorB[0], AxB[0], AxorB[0]);
+	oneBitOutputSelector f12(S[1], P,Q,R, AplusB[1], AandB[1], AorB[1], AxB[1], AxorB[1]);
+	oneBitOutputSelector f13(S[2], P,Q,R, AplusB[2], AandB[2], AorB[2], AxB[2], AxorB[2]);
+	oneBitOutputSelector f14(S[3], P,Q,R, AplusB[3], AandB[3], AorB[3], AxB[3], AxorB[3]);
 	
 endmodule
 
@@ -277,17 +293,17 @@ module oneBitOutputSelector(S, P,Q,R, AplusB, AandB, AorB, AxB, AxorB);
 	wire pBar, qBar, rBar;
 	wire AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out;
 	
-	not f1(pBar, P);
-	not f2(qBar, Q);
-	not f3(rBar, R);
+	not f21(pBar, P);
+	not f22(qBar, Q);
+	not f23(rBar, R);
 	
-	and f4(AplusB_out, AplusB, pBar, qBar, rBar);
-	and f5(AandB_out, AandB, pBar, Q, rBar);
-	and f6(AorB_out, AorB, P, qBar, rBar);
-	and f7(AxB_out, AxB, P, Q, rBar);
-	and f8(AxorB_out, AxorB, R);
+	and f24(AplusB_out, AplusB, pBar, qBar, rBar);
+	and f25(AandB_out, AandB, pBar, Q, rBar);
+	and f26(AorB_out, AorB, P, qBar, rBar);
+	and f27(AxB_out, AxB, P, Q, rBar);
+	and f28(AxorB_out, AxorB, R);
 	
-	or f9(S, AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out);
+	or f29(S, AplusB_out, AandB_out, AorB_out, AxB_out, AxorB_out);
 	
 endmodule
 
@@ -336,10 +352,10 @@ module busAND(Y, X, En);
    output [3:0] Y;
     
    // if (EnA==1) ? Y=X : Y= 4'b0000
-	and f1(Y[0], X[0], En);
-	and f1(Y[1], X[1], En);
-	and f1(Y[2], X[2], En);
-	and f1(Y[3], X[3], En);
+	and f31(Y[0], X[0], En);
+	and f32(Y[1], X[1], En);
+	and f33(Y[2], X[2], En);
+	and f34(Y[3], X[3], En);
 	
 endmodule
 
@@ -349,10 +365,10 @@ module busXOR(Y, X, En);
    output [3:0] Y;
 
 	// if (EnA==1) ? Y=xor(Y, 1) : Y= Y    
-	xor f1(Y[0], X[0], En);
-	xor f1(Y[1], X[1], En);
-	xor f1(Y[2], X[2], En);
-	xor f1(Y[3], X[3], En);
+	xor f41(Y[0], X[0], En);
+	xor f42(Y[1], X[1], En);
+	xor f43(Y[2], X[2], En);
+	xor f44(Y[3], X[3], En);
 	
 endmodule
 
